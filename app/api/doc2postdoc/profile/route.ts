@@ -4,6 +4,7 @@ import { DOC2POSTDOC_PILLAR_NAMES, fieldsForPillar } from "../../../../lib/doc2p
 
 const roles = new Set(["phd_student", "postdoc", "faculty", "industry"]);
 const stages = new Set(["phd_finishing", "postdoc_search", "postdoc_early", "postdoc_late", "industry_transition", "faculty_track", "industry"]);
+const matchRadii = new Set(["Campus", "Department", "City", "State", "Country", "Continent", "Global"]);
 
 export async function GET() {
   const { supabase, user } = await requireDoc2PostdocUser();
@@ -27,7 +28,11 @@ export async function PATCH(request: Request) {
   if (!user) return NextResponse.json({ error: "Sign in to update your profile." }, { status: 401 });
   const input = await request.json() as Record<string, unknown>;
   const update: Record<string, unknown> = {};
-  const textFields = ["display_name", "research_area", "institution", "institution_type", "geography", "bio", "about", "specialization"];
+  const textFields = [
+    "display_name", "research_area", "institution", "institution_type", "geography", "bio", "about", "specialization",
+    "department", "academic_memberships", "social_memberships", "languages", "hobbies", "marital_status", "dietary",
+    "peer_field", "professional_connection", "usa_region", "career_stage_label",
+  ];
   textFields.forEach((field) => { if (typeof input[field] === "string") update[field] = input[field].trim(); });
   if (typeof input.role === "string" && roles.has(input.role)) update.role = input.role;
   if (typeof input.career_stage === "string" && stages.has(input.career_stage)) update.career_stage = input.career_stage;
@@ -38,10 +43,13 @@ export async function PATCH(request: Request) {
     const validFields = pillarForField ? fieldsForPillar(pillarForField) : null;
     if (input.pillar_field === "" || !validFields || validFields.includes(input.pillar_field)) update.pillar_field = input.pillar_field;
   }
+  if (typeof input.match_radius === "string" && matchRadii.has(input.match_radius)) update.match_radius = input.match_radius;
+  if (typeof input.broadcast_opt_in === "boolean") update.broadcast_opt_in = input.broadcast_opt_in;
   if (Array.isArray(input.specialties)) update.specialties = input.specialties.filter((value): value is string => typeof value === "string").slice(0, 20);
   if (Array.isArray(input.interests)) update.interests = input.interests.filter((value): value is string => typeof value === "string").slice(0, 20);
   if (typeof input.is_mentor === "boolean") update.is_mentor = input.is_mentor;
   if (typeof input.mentor_available === "boolean") update.mentor_available = input.mentor_available;
+  if (input.complete_profile === true) update.profile_completed_at = new Date().toISOString();
   if (!Object.keys(update).length) return NextResponse.json({ error: "No valid profile fields supplied." }, { status: 400 });
   const { data, error } = await supabase.from("doc2postdoc_profiles").update(update).eq("id", user.id).select("*").single();
   if (error) return NextResponse.json({ error: "Unable to update your profile." }, { status: 500 });

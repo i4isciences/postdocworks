@@ -6,7 +6,26 @@ import { ArrowRight, CheckCircle2 } from "lucide-react";
 
 type Status = "idle" | "submitting" | "success" | "error";
 
-export function VerifyCredentialClient({ email }: { email: string }) {
+export function VerifyCredentialClient({ email, kind = "credential" }: { email: string; kind?: "credential" | "doc2postdoc" }) {
+  if (kind === "doc2postdoc") {
+    return (
+      <div className="verify-body">
+        <span className="verify-check">
+          <CheckCircle2 size={22} />
+        </span>
+        <h1>You&apos;re verified.</h1>
+        <p className="verify-email">{email}</p>
+        <p>Your account is confirmed and you&apos;re signed in. Continue to your dashboard, then finish your Doc2Postdoc match profile whenever you&apos;re ready.</p>
+        <Link className="verify-submit" href="/dashboard">
+          Continue to your dashboard <ArrowRight size={16} />
+        </Link>
+      </div>
+    );
+  }
+  return <VerifyCredentialPasswordSetup email={email} />;
+}
+
+function VerifyCredentialPasswordSetup({ email }: { email: string }) {
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
   const [status, setStatus] = useState<Status>("idle");
@@ -43,7 +62,7 @@ export function VerifyCredentialClient({ email }: { email: string }) {
       {status === "success" ? (
         <>
           <p>Your password is set. You&apos;re signed in and ready to continue.</p>
-          <Link className="verify-submit" href="/doc2postdoc">
+          <Link className="verify-submit" href="/dashboard">
             Go to your dashboard <ArrowRight size={16} />
           </Link>
         </>
@@ -68,7 +87,7 @@ export function VerifyCredentialClient({ email }: { email: string }) {
               <Link href="/privacy">Privacy Policy</Link>.
             </p>
           </form>
-          <Link className="verify-skip" href="/doc2postdoc">
+          <Link className="verify-skip" href="/dashboard">
             Skip for now — go to your dashboard
           </Link>
         </>

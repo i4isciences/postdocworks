@@ -65,26 +65,9 @@ async function markDoc2PostdocSignupVerified(email: string, userId: string) {
         research_area: signup.primary_field,
         pillar: signup.pillar,
         pillar_field: signup.pillar_field,
-        specialization: signup.specialization,
-        secondary_pillar: signup.secondary_pillar,
-        institution: signup.institution,
-        geography: [signup.city, signup.state_province, signup.country].filter(Boolean).join(", "),
-        about: signup.credibility_notes,
-        department: signup.department,
-        academic_memberships: signup.academic_memberships,
-        social_memberships: signup.social_memberships,
-        languages: signup.languages,
-        hobbies: signup.hobbies,
-        marital_status: signup.marital_status,
-        dietary: signup.dietary,
-        peer_field: signup.peer_field,
-        professional_connection: signup.professional_connection,
-        match_radius: signup.match_radius,
-        broadcast_opt_in: signup.broadcast_opt_in,
-        usa_region: signup.usa_region,
         career_stage_label: signup.career_stage,
-        is_mentor: signup.signup_role === "postdoc",
-        mentor_available: signup.signup_role === "postdoc",
+        is_mentor: signup.signup_role === "postdoc" && Boolean(signup.mentor_available),
+        mentor_available: signup.signup_role === "postdoc" && Boolean(signup.mentor_available),
       })
       .eq("id", userId);
   } catch (error) {
@@ -117,12 +100,12 @@ export default async function VerifyCredentialPage({ searchParams }: { searchPar
   }
 
   const email = data.user.email || "";
+  await markCredentialVerified(email, data.user.id);
   if (kind === "doc2postdoc") await markDoc2PostdocSignupVerified(email, data.user.id);
-  else await markCredentialVerified(email, data.user.id);
 
   return (
     <VerifyShell>
-      <VerifyCredentialClient email={email} />
+      <VerifyCredentialClient email={email} kind={kind === "doc2postdoc" ? "doc2postdoc" : "credential"} />
     </VerifyShell>
   );
 }

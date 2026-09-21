@@ -2,26 +2,61 @@
 
 import { Inter, Source_Serif_4 } from "next/font/google";
 import { FormEvent, useEffect, useState } from "react";
-import { ArrowLeft, ArrowRight, Check, Lock } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import { DOC2POSTDOC_PILLAR_NAMES, fieldsForPillar, DOC2POSTDOC_PILLARS } from "../../lib/doc2postdoc/taxonomy";
 
 const sourceSerif = Source_Serif_4({ subsets: ["latin"], weight: ["400", "600"], variable: "--font-source-serif" });
 const inter = Inter({ subsets: ["latin"], weight: ["400", "500", "600"], variable: "--font-inter" });
 
-const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-type SubmitStatus = "form" | "submitting" | "sent" | "error";
-type PasswordStatus = "idle" | "submitting" | "success" | "error";
-type AuthState = { authenticated: boolean; email: string };
+type LoadStatus = "loading" | "ready" | "load-error";
+type SubmitStatus = "form" | "submitting" | "error";
+
+type KnownProfile = {
+  display_name: string;
+  email: string;
+  role: string;
+  career_stage_label: string;
+  pillar: string;
+  pillar_field: string;
+  specialization: string;
+  secondary_pillar: string;
+  about: string;
+  academic_memberships: string;
+  social_memberships: string;
+  institution: string;
+  department: string;
+  geography: string;
+  usa_region: string;
+  languages: string;
+  hobbies: string;
+  marital_status: string;
+  dietary: string;
+  peer_field: string;
+  professional_connection: string;
+  match_radius: string;
+  broadcast_opt_in: boolean;
+  mentor_available: boolean;
+};
+
+const DOC_STAGES = ["PhD student", "Student (other)"];
+const POSTDOC_STAGES = ["Postdoc", "Medical resident", "Fellow", "PI"];
 
 function usaLikely(country: string) {
   const value = country.trim().toLowerCase();
   return value.includes("united states") || value === "usa" || value === "us";
 }
 
-export function Doc2PostdocProfileForm({ role, onBack }: { role: "doc" | "postdoc"; onBack: () => void }) {
-  const [fullName, setFullName] = useState("");
-  const [email, setEmail] = useState("");
-  const [careerStage, setCareerStage] = useState(role === "doc" ? "PhD student" : "Postdoc");
+function splitGeography(geography: string) {
+  const parts = geography.split(",").map((part) => part.trim()).filter(Boolean);
+  return { city: parts[0] || "", state: parts[1] || "", country: parts[2] || "" };
+}
+
+export function Doc2PostdocProfileForm({ onComplete }: { onComplete: () => void }) {
+  const [loadStatus, setLoadStatus] = useState<LoadStatus>("loading");
+  const [displayName, setDisplayName] = useState("");
+  const [role, setRole] = useState("");
+  const [careerStageLabel, setCareerStageLabel] = useState("");
+
   const [pillar, setPillar] = useState("");
   const [pillarField, setPillarField] = useState("");
   const [specialization, setSpecialization] = useState("");
@@ -43,40 +78,65 @@ export function Doc2PostdocProfileForm({ role, onBack }: { role: "doc" | "postdo
   const [connection, setConnection] = useState("");
   const [matchRadius, setMatchRadius] = useState("Campus");
   const [broadcastOptIn, setBroadcastOptIn] = useState(false);
+  const [mentorAvailable, setMentorAvailable] = useState(false);
 
   const [status, setStatus] = useState<SubmitStatus>("form");
   const [error, setError] = useState("");
-  const [termsAccepted, setTermsAccepted] = useState(false);
-  const [resending, setResending] = useState(false);
-  const [resendMessage, setResendMessage] = useState("");
-  const [authState, setAuthState] = useState<AuthState>({ authenticated: false, email: "" });
-
-  const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
-  const [passwordStatus, setPasswordStatus] = useState<PasswordStatus>("idle");
-  const [passwordError, setPasswordError] = useState("");
-  const [passwordSet, setPasswordSet] = useState(false);
 
   useEffect(() => {
-    if (status !== "sent" || authState.authenticated) return;
     let cancelled = false;
-    async function poll() {
-      const response = await fetch("/api/doc2postdoc/auth").catch(() => null);
-      if (cancelled || !response) return;
-      if (response.ok) {
-        const data = (await response.json()) as { user?: { email?: string } };
-        setAuthState({ authenticated: true, email: data.user?.email || email });
+    async function load() {
+      try {
+        const response = await fetch("/api/doc2postdoc/profile");
+        if (!response.ok) throw new Error();
+        const data = (await response.json()) as { profile: KnownProfile };
+        if (cancelled) return;
+        const p = data.profile;
+        const geo = splitGeography(p.geography || "");
+        setDisplayName(p.display_name || "");
+        setRole(p.role || "");
+        setCareerStageLabel(p.career_stage_label || "");
+        setPillar(p.pillar || "");
+        setPillarField(p.pillar_field || "");
+        setSpecialization(p.specialization || "");
+        setSecondaryPillar(p.secondary_pillar || "");
+        setCredibilityNotes(p.about || "");
+        setAcademicMemberships(p.academic_memberships || "");
+        setSocialMemberships(p.social_memberships || "");
+        setInstitution(p.institution || "");
+        setDepartment(p.department || "");
+        setCity(geo.city);
+        setState(geo.state);
+        setCountry(geo.country);
+        setUsaRegion(p.usa_region || "");
+        setLanguages(p.languages || "");
+        setHobbies(p.hobbies || "");
+        setMaritalStatus(p.marital_status || "");
+        setDietary(p.dietary || "");
+        setPeerField(p.peer_field || "");
+        setConnection(p.professional_connection || "");
+        setMatchRadius(p.match_radius || "Campus");
+        setBroadcastOptIn(Boolean(p.broadcast_opt_in));
+        setMentorAvailable(Boolean(p.mentor_available));
+        if (!p.career_stage_label) setCareerStageLabel(p.role === "postdoc" ? POSTDOC_STAGES[0] : DOC_STAGES[0]);
+        setLoadStatus("ready");
+      } catch {
+        if (!cancelled) setLoadStatus("load-error");
       }
     }
-    const interval = setInterval(poll, 4000);
-    poll();
-    return () => { cancelled = true; clearInterval(interval); };
-  }, [status, authState.authenticated, email]);
+    load();
+    return () => { cancelled = true; };
+  }, []);
+
+  async function signOut() {
+    await fetch("/api/doc2postdoc/auth", { method: "DELETE" });
+    window.location.href = "/doc2postdoc";
+  }
 
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (fullName.trim().length < 2 || !emailPattern.test(email) || !careerStage) {
-      setError("Complete your name, email, and career stage to continue.");
+    if (!careerStageLabel) {
+      setError("Choose your career stage so we can match you accurately.");
       setStatus("error");
       return;
     }
@@ -85,117 +145,80 @@ export function Doc2PostdocProfileForm({ role, onBack }: { role: "doc" | "postdo
       setStatus("error");
       return;
     }
-    if (!termsAccepted) {
-      setError("You must agree to the Terms of Service and Privacy Policy to continue.");
-      setStatus("error");
-      return;
-    }
     setStatus("submitting");
     setError("");
     try {
-      const response = await fetch("/api/doc2postdoc/profile-submit", {
-        method: "POST",
+      const response = await fetch("/api/doc2postdoc/profile", {
+        method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          fullName, email, signupRole: role, careerStage,
-          primaryField: specialization.trim() || pillarField || "", pillar, pillarField, specialization, secondaryPillar,
-          credibilityNotes,
-          academicMemberships, socialMemberships, institution, department, city, state, country, usaRegion,
-          languages, hobbies, maritalStatus, dietary, peerField, connection, matchRadius, broadcastOptIn,
-          termsAccepted,
+          career_stage_label: careerStageLabel,
+          pillar, pillar_field: pillarField, specialization, secondary_pillar: secondaryPillar,
+          about: credibilityNotes, academic_memberships: academicMemberships, social_memberships: socialMemberships,
+          institution, department, geography: [city, state, country].filter(Boolean).join(", "), usa_region: usaRegion,
+          languages, hobbies, marital_status: maritalStatus, dietary, peer_field: peerField,
+          professional_connection: connection, match_radius: matchRadius, broadcast_opt_in: broadcastOptIn,
+          research_area: specialization.trim() || pillarField,
+          ...(role === "postdoc" ? { is_mentor: mentorAvailable, mentor_available: mentorAvailable } : {}),
+          complete_profile: true,
         }),
       });
       const result = (await response.json()) as { error?: string };
       if (!response.ok) throw new Error(result.error || "We could not save your profile.");
-      setStatus("sent");
+      onComplete();
     } catch (submitError) {
       setStatus("error");
       setError(submitError instanceof Error ? submitError.message : "Please try again.");
     }
   }
 
-  async function resendEmail() {
-    setResending(true);
-    setResendMessage("");
-    try {
-      const response = await fetch("/api/doc2postdoc/auth", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ action: "magiclink", email, displayName: fullName }),
-      });
-      const result = (await response.json()) as { error?: string };
-      if (!response.ok) throw new Error(result.error || "We could not resend the email.");
-      setResendMessage("Verification email sent again.");
-    } catch (resendError) {
-      setResendMessage(resendError instanceof Error ? resendError.message : "We could not resend the email.");
-    } finally {
-      setResending(false);
-    }
-  }
-
-  async function submitPassword(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    if (password.length < 8) { setPasswordStatus("error"); setPasswordError("Choose a password with at least 8 characters."); return; }
-    if (password !== confirmPassword) { setPasswordStatus("error"); setPasswordError("Passwords do not match."); return; }
-    setPasswordStatus("submitting");
-    setPasswordError("");
-    try {
-      const response = await fetch("/api/doc2postdoc/auth", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ action: "setPassword", password }),
-      });
-      const result = (await response.json()) as { error?: string };
-      if (!response.ok) throw new Error(result.error || "We could not set your password.");
-      setPasswordStatus("success");
-      setPasswordSet(true);
-    } catch (passwordSubmitError) {
-      setPasswordStatus("error");
-      setPasswordError(passwordSubmitError instanceof Error ? passwordSubmitError.message : "We could not set your password.");
-    }
-  }
-
   const showUsaRegion = usaLikely(country);
-  const formLocked = status === "submitting" || status === "sent";
+  const formLocked = status === "submitting";
+
+  if (loadStatus === "loading") {
+    return <div className="d2p-gate-loading">Loading your account...</div>;
+  }
+  if (loadStatus === "load-error") {
+    return (
+      <div className="d2p-gate-loading">
+        We couldn&apos;t load your account. <button type="button" className="d2p-pf-back" onClick={() => window.location.reload()}>Try again</button>
+      </div>
+    );
+  }
 
   return (
     <div className={`${sourceSerif.variable} ${inter.variable} d2p-pf-body`}>
       <div className="d2p-pf-wrap">
         <header className="d2p-pf-header">
-          <button type="button" className="d2p-pf-back" onClick={onBack}><ArrowLeft size={14} /> Back</button>
-          <div className="d2p-pf-kicker">Doc2Postdoc · Signing up as a {role === "doc" ? "PhD student (Doc)" : "Postdoc"}</div>
-          <h1>Build your match profile</h1>
-          <p>These details power your peer matches — the closer your field, stage, and circumstances line up with another doc, the sooner eyewee can connect you.</p>
+          <div className="d2p-pf-kicker">
+            Doc2Postdoc · Signed in as {displayName || "you"} ({role === "phd_student" ? "PhD student (Doc)" : "Postdoc"}) ·{" "}
+            <button type="button" className="d2p-pf-back" onClick={signOut} style={{ display: "inline", padding: 0 }}>Not you? Sign out</button>
+          </div>
+          <h1>Finish your match profile</h1>
+          <p>Your account is verified. These details power your peer matches — the closer your field, stage, and circumstances line up with another member, the sooner Doc2Postdoc can connect you.</p>
         </header>
 
         <form onSubmit={submit}>
           <section className="d2p-pf-card">
             <div className="d2p-pf-section-head"><span className="d2p-pf-section-num">1</span><h2>About you</h2></div>
-            <p className="d2p-pf-section-sub">Required</p>
-
             <div className="d2p-pf-row2">
+              <div className="d2p-pf-field"><label>Name</label><input type="text" value={displayName} disabled /></div>
               <div className="d2p-pf-field">
-                <label htmlFor="fullName">Full name <span className="d2p-pf-req">*</span></label>
-                <input type="text" id="fullName" value={fullName} onChange={(e) => setFullName(e.target.value)} disabled={formLocked} required />
-              </div>
-              <div className="d2p-pf-field">
-                <label htmlFor="email">Email address <span className="d2p-pf-req">*</span></label>
-                <input type="email" id="email" value={email} onChange={(e) => setEmail(e.target.value)} disabled={formLocked} required />
+                <label htmlFor="careerStageLabel">Career stage <span className="d2p-pf-req">*</span></label>
+                <select id="careerStageLabel" value={careerStageLabel} onChange={(e) => setCareerStageLabel(e.target.value)} disabled={formLocked} required>
+                  {(role === "postdoc" ? POSTDOC_STAGES : DOC_STAGES).map((stage) => <option key={stage}>{stage}</option>)}
+                </select>
               </div>
             </div>
-
-            <div className="d2p-pf-field">
-              <label htmlFor="careerStage">Career stage <span className="d2p-pf-req">*</span></label>
-              <select id="careerStage" value={careerStage} onChange={(e) => setCareerStage(e.target.value)} disabled={formLocked} required>
-                <option value="">Select one</option>
-                <option>PhD student</option>
-                <option>Postdoc</option>
-                <option>Medical resident</option>
-                <option>Fellow</option>
-                <option>PI</option>
-                <option>Student (other)</option>
-              </select>
-            </div>
+            {role === "postdoc" && (
+              <div className="d2p-pf-check-row">
+                <input type="checkbox" id="mentorAvailable" checked={mentorAvailable} onChange={(e) => setMentorAvailable(e.target.checked)} disabled={formLocked} />
+                <div>
+                  <label htmlFor="mentorAvailable">Available to mentor a PhD student</label>
+                  <p className="d2p-pf-hint">Turn this off if you&apos;d rather browse first — you can change it anytime from your profile.</p>
+                </div>
+              </div>
+            )}
           </section>
 
           <section className="d2p-pf-card">
@@ -239,7 +262,6 @@ export function Doc2PostdocProfileForm({ role, onBack }: { role: "doc" | "postdo
             <div className="d2p-pf-field">
               <label htmlFor="credibilityNotes">Research credibility notes</label>
               <textarea id="credibilityNotes" value={credibilityNotes} onChange={(e) => setCredibilityNotes(e.target.value)} disabled={formLocked} placeholder="Brief note on your current research focus" />
-              <p className="d2p-pf-hint">Placeholder for the full Research Credibility Profile — structure pending.</p>
             </div>
 
             <div className="d2p-pf-field">
@@ -255,7 +277,7 @@ export function Doc2PostdocProfileForm({ role, onBack }: { role: "doc" | "postdo
 
           <section className="d2p-pf-card">
             <div className="d2p-pf-section-head"><span className="d2p-pf-section-num">3</span><h2>Location &amp; institution</h2></div>
-            <p className="d2p-pf-section-sub">Required — used for the geographic match ladder</p>
+            <p className="d2p-pf-section-sub">Used for the geographic match ladder</p>
 
             <div className="d2p-pf-row2">
               <div className="d2p-pf-field">
@@ -350,7 +372,7 @@ export function Doc2PostdocProfileForm({ role, onBack }: { role: "doc" | "postdo
 
           <section className="d2p-pf-card">
             <div className="d2p-pf-section-head"><span className="d2p-pf-section-num">6</span><h2>Matching preferences</h2></div>
-            <p className="d2p-pf-section-sub">Controls how far eyewee looks for a match</p>
+            <p className="d2p-pf-section-sub">Controls how far Doc2Postdoc looks for a match</p>
 
             <div className="d2p-pf-field">
               <label htmlFor="matchRadius">Preferred match radius</label>
@@ -375,65 +397,13 @@ export function Doc2PostdocProfileForm({ role, onBack }: { role: "doc" | "postdo
           </section>
 
           <div className="d2p-pf-actions">
-            <div className="consent-row d2p-pf-consent">
-              <input
-                type="checkbox"
-                id="d2p-pf-terms"
-                checked={termsAccepted}
-                onChange={(e) => setTermsAccepted(e.target.checked)}
-                disabled={formLocked}
-              />
-              <label htmlFor="d2p-pf-terms">
-                I agree to the Postdocworks <a href="/terms" target="_blank" rel="noreferrer">Terms of Service</a> and{" "}
-                <a href="/privacy" target="_blank" rel="noreferrer">Privacy Policy</a>.
-              </label>
-            </div>
-            <button type="submit" className="d2p-pf-submit" disabled={formLocked || !termsAccepted}>
-              {status === "submitting" ? "Saving..." : status === "sent" ? "Profile saved ✓" : "Save profile"}
+            <button type="submit" className="d2p-pf-submit" disabled={formLocked}>
+              {status === "submitting" ? "Saving..." : "Save & continue to Doc2Postdoc"} <ArrowRight size={15} />
             </button>
             <p className="d2p-pf-foot-note">You can update any of this later from your Navigator profile.</p>
             {status === "error" && <p className="d2p-pf-error">{error}</p>}
           </div>
         </form>
-
-        <section className="d2p-pf-card d2p-pf-activation">
-          <div className="d2p-pf-section-head"><span className="d2p-pf-section-num">7</span><h2>Confirm &amp; verify your email</h2></div>
-          <p className="d2p-pf-section-sub">Unlocks your Doc2Postdoc login</p>
-          <p className="d2p-pf-hint">Save your profile above first — we&apos;ll send a real verification email to the address you gave in About you.</p>
-
-          {status === "sent" && !authState.authenticated && (
-            <div className="d2p-pf-sent-box">
-              <p className="d2p-pf-hint">Verification email sent to {email}. Click the link inside to activate your login — this page updates automatically once you do.</p>
-              <button type="button" className="d2p-pf-resend" onClick={resendEmail} disabled={resending}>
-                {resending ? "Resending..." : "Resend verification email"}
-              </button>
-              {resendMessage && <p className="d2p-pf-hint">{resendMessage}</p>}
-            </div>
-          )}
-
-          {!authState.authenticated ? (
-            <div className="d2p-pf-login-locked">
-              <Lock size={26} className="d2p-pf-lock-icon" />
-              <p className="d2p-pf-login-title d2p-pf-login-title-center">Login</p>
-              <p className="d2p-pf-hint">Frozen until you verify your email above.</p>
-            </div>
-          ) : (
-            <div className="d2p-pf-login-active">
-              <p className="d2p-pf-login-title"><Check size={16} /> Email verified — welcome</p>
-              {!passwordSet ? (
-                <form onSubmit={submitPassword}>
-                  <div className="d2p-pf-field"><label>Email</label><input type="email" value={authState.email} disabled /></div>
-                  <div className="d2p-pf-field"><label>Create a password</label><input type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="At least 8 characters" /></div>
-                  <div className="d2p-pf-field"><label>Confirm password</label><input type="password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} placeholder="Re-enter your password" /></div>
-                  {passwordStatus === "error" && <p className="d2p-pf-error">{passwordError}</p>}
-                  <button type="submit" className="d2p-pf-submit" disabled={passwordStatus === "submitting"}>{passwordStatus === "submitting" ? "Saving..." : "Set password & continue"}</button>
-                </form>
-              ) : (
-                <a className="d2p-pf-submit d2p-pf-submit-link" href="/doc2postdoc">Log in to your dashboard <ArrowRight size={15} /></a>
-              )}
-            </div>
-          )}
-        </section>
       </div>
     </div>
   );

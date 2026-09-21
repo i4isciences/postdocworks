@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { FormEvent, useState } from "react";
+import { FormEvent, useEffect, useState } from "react";
 import { ArrowRight, Check, X } from "lucide-react";
 import { CredentialForm } from "./credentials/CredentialForm";
 
@@ -18,15 +18,42 @@ const formFields = [
 
 export function HomePage() {
   const [formOpen, setFormOpen] = useState(false);
+  const [signedIn, setSignedIn] = useState(false);
+
+  useEffect(() => {
+    let cancelled = false;
+    fetch("/api/doc2postdoc/auth").then((response) => { if (!cancelled) setSignedIn(response.ok); }).catch(() => {});
+    return () => { cancelled = true; };
+  }, []);
+
   return (
     <main className="home-site">
       <header className="home-nav">
         <a className="home-brand" href="#top" aria-label="Postdocworks home"><Image src="/postdocworks.jpg" alt="Postdocworks logo" width={190} height={54} priority /><span className="home-brand-copy"><strong>Postdocworks</strong><small>You say it, Eyewee carries it, guides it and cracks the toughest problems</small></span></a>
-        <nav className="home-nav-links" aria-label="Main navigation"><a href="#platform">The platform</a><a href="https://eyewee.vercel.app/" target="_blank" rel="noreferrer">eyewee</a><a href="/careers">Careers</a><a href="/contact">Contact</a><button className="nav-register register-attention" type="button" onClick={() => setFormOpen(true)}>Register now <ArrowRight size={15} /></button></nav>
-        <button className="mobile-nav-register" type="button" onClick={() => setFormOpen(true)} aria-label="Open registration form"><ArrowRight size={18} /></button>
+        <nav className="home-nav-links" aria-label="Main navigation">
+          <a href="#platform">The platform</a><a href="/doc2postdoc">Doc2Postdoc</a><a href="https://eyewee.vercel.app/" target="_blank" rel="noreferrer">eyewee</a><a href="/careers">Careers</a><a href="/contact">Contact</a>
+          {signedIn ? (
+            <a className="nav-register register-attention" href="/dashboard">Go to dashboard <ArrowRight size={15} /></a>
+          ) : (
+            <button className="nav-register register-attention" type="button" onClick={() => setFormOpen(true)}>Register now <ArrowRight size={15} /></button>
+          )}
+        </nav>
+        {signedIn ? (
+          <a className="mobile-nav-register" href="/dashboard" aria-label="Go to your dashboard"><ArrowRight size={18} /></a>
+        ) : (
+          <button className="mobile-nav-register" type="button" onClick={() => setFormOpen(true)} aria-label="Open registration form"><ArrowRight size={18} /></button>
+        )}
       </header>
       <section className="home-hero" id="top">
-        <div className="hero-video-frame"><video className="hero-video" autoPlay muted loop playsInline src="/postdocworks.mp4" aria-label="Postdocworks introduction video" /><button className="hero-explore" type="button" onClick={() => document.getElementById("platform")?.scrollIntoView({ behavior: "smooth" })}>Explore <ArrowRight size={17} /></button></div>
+        <p className="hero-kicker">Postdocworks</p>
+        <h1>Cross the bridge from<br />academia to industry.</h1>
+        <p className="hero-lead">Verified profiles, AI-guided matching, and a real path from postdoc to what&apos;s next.</p>
+        <button className="hero-cta-main register-attention" type="button" onClick={() => document.getElementById("watch")?.scrollIntoView({ behavior: "smooth" })}>Explore now <ArrowRight size={17} /></button>
+      </section>
+      <section className="home-showcase" id="watch" aria-label="Postdocworks product preview">
+        <div className="showcase-frame">
+          <video className="showcase-video" autoPlay muted loop playsInline src="/postdocworks.mp4" aria-label="Postdocworks introduction video" />
+        </div>
       </section>
       <section className="platform-intro" id="platform"><p className="section-label">One company. Two decisive moves.</p><h2>Research careers deserve better than a handoff.</h2><p className="platform-lead">Postdocworks turns hard-earned academic experience into momentum, connecting the person doing the work with the people and opportunities ready for it.</p>
         <div className="product-split"><article className="product-panel product-panel-dark"><p className="product-number">01 / Doc2Postdoc</p><h3>The shortest distance between where you are and what&apos;s next.</h3><p>Find the person who has already made your transition. Doc2Postdoc matches PhD researchers with credible postdocs for specific, human guidance when the stakes are highest.</p><a href="/doc2postdoc" className="product-link">Explore Doc2Postdoc <ArrowRight size={16} /></a></article><article className="product-panel product-panel-gold"><p className="product-number">02 / Postdocworks</p><h3>Your record, finally read as a whole.</h3><p>Postdocworks gives institutions and researchers a more intelligent way to meet: verified credentials, meaningful context, and a career signal that goes beyond a title.</p><a href="#register" className="product-link">Build your record <ArrowRight size={16} /></a></article></div>

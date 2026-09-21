@@ -4,7 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { FormEvent, useState } from "react";
 import { ArrowRight, GraduationCap, Microscope } from "lucide-react";
-import { Doc2PostdocProfileForm } from "./Doc2PostdocProfileForm";
+import { CredentialForm } from "../credentials/CredentialForm";
 
 type View = "landing" | "form" | "signin";
 
@@ -18,7 +18,7 @@ export function Doc2PostdocLanding() {
   const [view, setView] = useState<View>("landing");
   const [role, setRole] = useState<"doc" | "postdoc">("doc");
 
-  if (view === "form") return <Doc2PostdocProfileForm role={role} onBack={() => setView("landing")} />;
+  if (view === "form") return <CredentialForm onClose={() => setView("landing")} doc2postdocRole={role} />;
   if (view === "signin") return <Doc2PostdocSignIn onBack={() => setView("landing")} />;
 
   return (
