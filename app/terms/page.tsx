@@ -2,22 +2,22 @@ import type { Metadata } from "next";
 import { LegalPage } from "../legal/LegalPage";
 
 export const metadata: Metadata = {
-  title: "Terms of Service | Postdocworks",
-  description: "The terms that govern your use of Postdocworks, Doc2Postdoc, and eyewee.",
+  title: "Terms of Service | PostdocWorks",
+  description: "The terms that govern your use of PostdocWorks, Doc2Postdoc, and eyewee.",
 };
 
 const sections = [
   {
     heading: "1. Acceptance of these Terms",
     body: [
-      "These Terms of Service (\"Terms\") govern your access to and use of Postdocworks, including Doc2Postdoc and eyewee (together, the \"Service\"), operated by i4iSciences LLC (\"i4iSciences,\" \"we,\" \"us,\" or \"our\").",
+      "These Terms of Service (\"Terms\") govern your access to and use of PostdocWorks, including Doc2Postdoc and eyewee (together, the \"Service\"), operated by I4I Sciences LLC dba i4iSciences (\"i4iSciences,\" \"we,\" \"us,\" or \"our\").",
       "By creating an account, submitting a credential application, completing a Doc2Postdoc match profile, or otherwise using the Service, you agree to be bound by these Terms and by our Privacy Policy. If you do not agree, do not use the Service.",
     ],
   },
   {
     heading: "2. What the Service does",
     body: [
-      "Postdocworks helps postdoctoral researchers and PhD students turn academic experience into a credible, connected career. The Service currently includes three parts:",
+      "PostdocWorks helps postdoctoral researchers and PhD students turn academic experience into a credible, connected career. The Service currently includes three parts:",
     ],
     list: [
       "Verified Credentials — a form that checks fields such as ORCID and PubMed identifiers against public third-party registries, and records faculty endorsements and other self-reported information, in order to issue verification badges.",
@@ -30,7 +30,7 @@ const sections = [
     body: [
       "You must provide accurate, current information when creating an account or submitting a form, and keep your email address and password (once set) secure. You are responsible for activity that occurs under your account.",
       "The Service is intended for individuals engaged in or supporting academic and postdoctoral research careers. You must be at least 18 years old to create an account.",
-      "One Postdocworks account is shared across Verified Credentials and Doc2Postdoc — your name, email, and career stage are stored once and used by both, rather than collected twice.",
+      "One PostdocWorks account is shared across Verified Credentials and Doc2Postdoc — your name, email, and career stage are stored once and used by both, rather than collected twice.",
     ],
   },
   {
@@ -60,7 +60,7 @@ const sections = [
     heading: "7. Your content and our intellectual property",
     body: [
       "You retain ownership of the content you submit (your profile information, credentials, messages, and posts). By submitting content, you grant i4iSciences a limited license to store, process, and display it as necessary to operate the Service — for example, showing your profile to a Doc2Postdoc match.",
-      "The Postdocworks, Doc2Postdoc, and eyewee names, logos, and the underlying platform, design, and software are the property of i4iSciences LLC and may not be copied, reused, or represented as your own.",
+      "The PostdocWorks, Doc2Postdoc, and eyewee names, logos, and the underlying platform, design, and software are the property of I4I Sciences LLC dba i4iSciences and may not be copied, reused, or represented as your own.",
     ],
   },
   {
@@ -114,7 +114,7 @@ export default function TermsPage() {
       title="Terms of Service"
       lastUpdated="September 17, 2026"
       sections={sections}
-      intro="These Terms explain what you're agreeing to when you use Postdocworks, Doc2Postdoc, and eyewee. Please read them alongside our Privacy Policy."
+      intro="These Terms explain what you're agreeing to when you use PostdocWorks, Doc2Postdoc, and eyewee. Please read them alongside our Privacy Policy."
     />
   );
 }

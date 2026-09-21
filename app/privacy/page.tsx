@@ -2,15 +2,15 @@ import type { Metadata } from "next";
 import { LegalPage } from "../legal/LegalPage";
 
 export const metadata: Metadata = {
-  title: "Privacy Policy | Postdocworks",
-  description: "How Postdocworks collects, uses, and protects your information.",
+  title: "Privacy Policy | PostdocWorks",
+  description: "How PostdocWorks collects, uses, and protects your information.",
 };
 
 const sections = [
   {
     heading: "1. Who we are",
     body: [
-      "Postdocworks, Doc2Postdoc, and eyewee are operated by i4iSciences LLC (\"i4iSciences,\" \"we,\" \"us,\" or \"our\"). This Policy explains what information we collect, why we collect it, and the choices you have.",
+      "PostdocWorks, Doc2Postdoc, and eyewee are operated by I4I Sciences LLC dba i4iSciences (\"i4iSciences,\" \"we,\" \"us,\" or \"our\"). This Policy explains what information we collect, why we collect it, and the choices you have.",
     ],
   },
   {
@@ -113,7 +113,7 @@ export default function PrivacyPage() {
       title="Privacy Policy"
       lastUpdated="September 17, 2026"
       sections={sections}
-      intro="This Policy explains what information Postdocworks collects across Verified Credentials, Doc2Postdoc, and eyewee, and how we use, share, and protect it."
+      intro="This Policy explains what information PostdocWorks collects across Verified Credentials, Doc2Postdoc, and eyewee, and how we use, share, and protect it."
     />
   );
 }

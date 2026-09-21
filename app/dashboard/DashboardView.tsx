@@ -26,9 +26,9 @@ export function DashboardView({
   return (
     <main className="dash-site">
       <header className="dash-nav">
-        <Link className="dash-brand" href="/dashboard" aria-label="Postdocworks dashboard">
-          <Image src="/postdocworks.jpg" alt="Postdocworks logo" width={48} height={48} priority />
-          <span className="dash-brand-copy"><strong>Postdocworks</strong><small>You say it, Eyewee carries it, guides it and cracks the toughest problems</small></span>
+        <Link className="dash-brand" href="/dashboard" aria-label="PostdocWorks dashboard">
+          <Image src="/postdocworks.jpg" alt="PostdocWorks logo" width={48} height={48} priority />
+          <span className="dash-brand-copy"><strong>PostdocWorks<sup className="brand-sm-mark">SM</sup></strong><small>You say it — eyewee carries it, guides it, and cracks the toughest problems</small></span>
         </Link>
         <nav className="dash-nav-links" aria-label="Main navigation">
           <Link href="/dashboard" className="dash-nav-active">Dashboard</Link>
@@ -134,9 +134,9 @@ export function DashboardView({
       </section>
 
       <footer className="home-footer dash-footer">
-        <Link className="footer-brand" href="/" aria-label="Postdocworks home">
-          <Image src="/postdocworks.jpg" alt="Postdocworks logo" width={190} height={54} />
-          <span className="home-brand-copy"><strong>Postdocworks</strong><small>You say it, Eyewee carries it, guides it and cracks the toughest problems</small></span>
+        <Link className="footer-brand" href="/" aria-label="PostdocWorks home">
+          <Image src="/postdocworks.jpg" alt="PostdocWorks logo" width={190} height={54} />
+          <span className="home-brand-copy"><strong>PostdocWorks<sup className="brand-sm-mark">SM</sup></strong><small>You say it — eyewee carries it, guides it, and cracks the toughest problems</small></span>
         </Link>
         <span className="footer-powered">Powered by i4iSciences<sup>TM</sup></span>
         <nav className="footer-legal" aria-label="Legal">

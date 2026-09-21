@@ -257,7 +257,7 @@ export function CredentialForm({ onClose, doc2postdocRole }: { onClose: () => vo
         <header className="cred-doc-header">
           <button className="cred-close" type="button" onClick={onClose} aria-label="Close registration form"><X size={19} /></button>
           <div className="cred-wordmark">
-            <Image className="cred-wordmark-logo" src="/postdocworks.jpg" alt="Postdocworks logo" width={40} height={37} priority />
+            <Image className="cred-wordmark-logo" src="/postdocworks.jpg" alt="PostdocWorks logo" width={40} height={37} priority />
             <div>
               <p className="cred-brand">Postdoc<span className="cred-brand-works">Works</span><sup className="cred-sm-mark">SM</sup></p>
               <p className="cred-doc-title" id="cred-title">Verified Credentials</p>
@@ -426,7 +426,7 @@ export function CredentialForm({ onClose, doc2postdocRole }: { onClose: () => vo
               disabled={submitStatus === "submitting" || submitStatus === "sent"}
             />
             <label htmlFor="cred-terms">
-              I agree to the Postdocworks{" "}
+              I agree to the PostdocWorks{" "}
               <a href="/terms" target="_blank" rel="noreferrer">Terms of Service</a> and{" "}
               <a href="/privacy" target="_blank" rel="noreferrer">Privacy Policy</a>.
             </label>

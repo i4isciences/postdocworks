@@ -13,14 +13,14 @@ const paths = [
   {
     icon: MessageCircle,
     title: "General inquiries",
-    body: "Questions about Postdocworks, Doc2Postdoc, or eyewee — we read every one ourselves.",
+    body: "Questions about PostdocWorks, Doc2Postdoc, or eyewee — we read every one ourselves.",
     action: "Write to us",
     href: "#form",
   },
   {
     icon: Briefcase,
     title: "Partnerships & institutions",
-    body: "Universities, research offices, and organizations exploring what Postdocworks can do for their researchers.",
+    body: "Universities, research offices, and organizations exploring what PostdocWorks can do for their researchers.",
     action: "Start a conversation",
     href: "#form",
   },
@@ -73,11 +73,11 @@ export function ContactPage() {
   return (
     <main className="home-site contact-page">
       <header className="home-nav">
-        <Link className="home-brand" href="/" aria-label="Postdocworks home">
-          <Image src="/postdocworks.jpg" alt="Postdocworks logo" width={190} height={54} priority />
+        <Link className="home-brand" href="/" aria-label="PostdocWorks home">
+          <Image src="/postdocworks.jpg" alt="PostdocWorks logo" width={190} height={54} priority />
           <span className="home-brand-copy">
-            <strong>Postdocworks</strong>
-            <small>Where the next step has already been taken</small>
+            <strong>PostdocWorks<sup className="brand-sm-mark">SM</sup></strong>
+            <small>You say it — eyewee carries it, guides it, and cracks the toughest problems</small>
           </span>
         </Link>
         <nav className="home-nav-links" aria-label="Main navigation">
@@ -184,7 +184,7 @@ export function ContactPage() {
                 onChange={(event) => setTermsAccepted(event.target.checked)}
               />
               <label htmlFor="contact-terms">
-                I agree to the Postdocworks <a href="/terms" target="_blank" rel="noreferrer">Terms of Service</a> and{" "}
+                I agree to the PostdocWorks <a href="/terms" target="_blank" rel="noreferrer">Terms of Service</a> and{" "}
                 <a href="/privacy" target="_blank" rel="noreferrer">Privacy Policy</a>.
               </label>
             </div>
@@ -201,11 +201,11 @@ export function ContactPage() {
       </section>
 
       <footer className="home-footer">
-        <Link className="footer-brand" href="/" aria-label="Postdocworks home">
-          <Image src="/postdocworks.jpg" alt="Postdocworks logo" width={190} height={54} />
+        <Link className="footer-brand" href="/" aria-label="PostdocWorks home">
+          <Image src="/postdocworks.jpg" alt="PostdocWorks logo" width={190} height={54} />
           <span className="home-brand-copy">
-            <strong>Postdocworks</strong>
-            <small>Where the next step has already been taken</small>
+            <strong>PostdocWorks<sup className="brand-sm-mark">SM</sup></strong>
+            <small>You say it — eyewee carries it, guides it, and cracks the toughest problems</small>
           </span>
         </Link>
         <span className="footer-powered">

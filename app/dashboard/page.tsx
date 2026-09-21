@@ -4,7 +4,7 @@ import { requireDoc2PostdocUser } from "../../lib/doc2postdoc/server";
 import { DashboardView } from "./DashboardView";
 
 export const metadata: Metadata = {
-  title: "Your dashboard | Postdocworks",
+  title: "Your dashboard | PostdocWorks",
 };
 
 export default async function DashboardPage() {

@@ -6,7 +6,7 @@ import { getSupabaseSecretKey, requireSupabaseEnv } from "../../lib/doc2postdoc/
 import { VerifyCredentialClient } from "./VerifyCredentialClient";
 
 export const metadata: Metadata = {
-  title: "Verify your email | Postdocworks",
+  title: "Verify your email | PostdocWorks",
 };
 
 function getAdminClient() {

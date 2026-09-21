@@ -23,7 +23,7 @@ export function LegalPage({
     <main className="legal-page">
       <header className="legal-nav">
         <Link className="legal-brand" href="/">
-          Postdocworks
+          PostdocWorks
         </Link>
         <nav className="legal-nav-links" aria-label="Legal navigation">
           <Link href="/terms">Terms of Service</Link>
@@ -54,14 +54,14 @@ export function LegalPage({
         ))}
 
         <p className="legal-disclaimer">
-          This document is provided as a general reference for how Postdocworks operates and is not
+          This document is provided as a general reference for how PostdocWorks operates and is not
           a substitute for independent legal advice. i4iSciences reviews and updates it as the
           Service evolves.
         </p>
       </article>
 
       <footer className="legal-footer">
-        <span>© 2026 i4iSciences LLC</span>
+        <span>© 2026 I4I Sciences LLC dba i4iSciences</span>
         <div>
           <Link href="/terms">Terms of Service</Link>
           <Link href="/privacy">Privacy Policy</Link>

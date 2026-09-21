@@ -81,11 +81,11 @@ export function CareersPage() {
   return (
     <main className="home-site careers-page">
       <header className="home-nav">
-        <Link className="home-brand" href="/" aria-label="Postdocworks home">
-          <Image src="/postdocworks.jpg" alt="Postdocworks logo" width={190} height={54} priority />
+        <Link className="home-brand" href="/" aria-label="PostdocWorks home">
+          <Image src="/postdocworks.jpg" alt="PostdocWorks logo" width={190} height={54} priority />
           <span className="home-brand-copy">
-            <strong>Postdocworks</strong>
-            <small>Where the next step has already been taken</small>
+            <strong>PostdocWorks<sup className="brand-sm-mark">SM</sup></strong>
+            <small>You say it — eyewee carries it, guides it, and cracks the toughest problems</small>
           </span>
         </Link>
         <nav className="home-nav-links" aria-label="Main navigation">
@@ -102,7 +102,7 @@ export function CareersPage() {
       </header>
 
       <section className="careers-hero">
-        <p className="section-label">Careers at Postdocworks</p>
+        <p className="section-label">Careers at PostdocWorks</p>
         <h1>
           Help build the next
           <br />
@@ -122,7 +122,7 @@ export function CareersPage() {
         </div>
       </section>
 
-      <section className="careers-stats" aria-label="Postdocworks at a glance">
+      <section className="careers-stats" aria-label="PostdocWorks at a glance">
         <div>
           <strong>2</strong>
           <span>Products in market</span>
@@ -141,7 +141,7 @@ export function CareersPage() {
         <p className="section-label">Why we exist</p>
         <h2>Research careers deserve better than a handoff.</h2>
         <p className="careers-mission-lead">
-          Postdocworks turns hard-earned academic experience into momentum — connecting the person doing the work
+          PostdocWorks turns hard-earned academic experience into momentum — connecting the person doing the work
           with the people and opportunities ready for it. Every person who joins us is building that bridge
           directly, not adjacent to it.
         </p>
@@ -179,7 +179,7 @@ export function CareersPage() {
         <p className="careers-roles-note">
           We&apos;re a small, founding team, and we hire deliberately rather than on a schedule. That said, we&apos;d
           genuinely like to know you — the right conversation today can turn into the right offer later. Tell us
-          about yourself below and we&apos;ll keep you in mind as Postdocworks grows.
+          about yourself below and we&apos;ll keep you in mind as PostdocWorks grows.
         </p>
         <a className="careers-hero-secondary" href="#apply">
           Introduce yourself <ArrowUpRight size={15} />
@@ -248,7 +248,7 @@ export function CareersPage() {
               </label>
             </div>
             <label>
-              Why Postdocworks? <span>*</span>
+              Why PostdocWorks? <span>*</span>
               <textarea
                 name="message"
                 placeholder="A little about your background and the kind of role you're looking for..."
@@ -257,7 +257,7 @@ export function CareersPage() {
               />
             </label>
             <p className="form-note">
-              Your information is used only to consider you for current and future roles at Postdocworks.
+              Your information is used only to consider you for current and future roles at PostdocWorks.
             </p>
             <div className="consent-row">
               <input
@@ -267,7 +267,7 @@ export function CareersPage() {
                 onChange={(event) => setTermsAccepted(event.target.checked)}
               />
               <label htmlFor="careers-terms">
-                I agree to the Postdocworks <a href="/terms" target="_blank" rel="noreferrer">Terms of Service</a> and{" "}
+                I agree to the PostdocWorks <a href="/terms" target="_blank" rel="noreferrer">Terms of Service</a> and{" "}
                 <a href="/privacy" target="_blank" rel="noreferrer">Privacy Policy</a>.
               </label>
             </div>
@@ -284,11 +284,11 @@ export function CareersPage() {
       </section>
 
       <footer className="home-footer">
-        <Link className="footer-brand" href="/" aria-label="Postdocworks home">
-          <Image src="/postdocworks.jpg" alt="Postdocworks logo" width={190} height={54} />
+        <Link className="footer-brand" href="/" aria-label="PostdocWorks home">
+          <Image src="/postdocworks.jpg" alt="PostdocWorks logo" width={190} height={54} />
           <span className="home-brand-copy">
-            <strong>Postdocworks</strong>
-            <small>Where the next step has already been taken</small>
+            <strong>PostdocWorks<sup className="brand-sm-mark">SM</sup></strong>
+            <small>You say it — eyewee carries it, guides it, and cracks the toughest problems</small>
           </span>
         </Link>
         <span className="footer-powered">
