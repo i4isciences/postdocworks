@@ -130,10 +130,9 @@ export async function POST(request: Request) {
 
     const origin = new URL(request.url).origin;
     const redirectPath = doc2postdocRole ? "/verify-credential?kind=doc2postdoc" : "/verify-credential";
-    const next = encodeURIComponent(redirectPath);
     const { error: otpError } = await supabase.auth.signInWithOtp({
       email,
-      options: { emailRedirectTo: `${origin}/auth/confirm?next=${next}`, shouldCreateUser: true, data: { display_name: fullName } },
+      options: { emailRedirectTo: `${origin}${redirectPath}`, shouldCreateUser: true, data: { display_name: fullName } },
     });
     if (otpError) throw otpError;
 
