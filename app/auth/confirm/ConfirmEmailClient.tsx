@@ -7,12 +7,10 @@ type Status = "idle" | "submitting" | "error";
 
 export function ConfirmEmailClient({
   tokenHash,
-  type,
   kind,
   next,
 }: {
   tokenHash: string;
-  type: string;
   kind: "doc2postdoc" | "credential";
   next: string;
 }) {
@@ -26,7 +24,7 @@ export function ConfirmEmailClient({
       const response = await fetch("/api/auth/confirm-link", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ token_hash: tokenHash, type, kind }),
+        body: JSON.stringify({ token_hash: tokenHash, kind }),
       });
       const result = (await response.json()) as { error?: string };
       if (!response.ok) throw new Error(result.error || "This link is invalid or has expired.");

@@ -9,11 +9,11 @@ export const metadata: Metadata = {
 export default async function ConfirmEmailPage({
   searchParams,
 }: {
-  searchParams: Promise<{ token_hash?: string; type?: string; next?: string }>;
+  searchParams: Promise<{ token_hash?: string; next?: string }>;
 }) {
-  const { token_hash: tokenHash, type, next } = await searchParams;
+  const { token_hash: tokenHash, next } = await searchParams;
 
-  if (!tokenHash || !type) {
+  if (!tokenHash) {
     return (
       <VerifyShell>
         <h1>This link is missing a verification code.</h1>
@@ -32,7 +32,7 @@ export default async function ConfirmEmailPage({
 
   return (
     <VerifyShell>
-      <ConfirmEmailClient tokenHash={tokenHash} type={type} kind={kind} next={next || "/verify-credential"} />
+      <ConfirmEmailClient tokenHash={tokenHash} kind={kind} next={next || "/verify-credential"} />
     </VerifyShell>
   );
 }
