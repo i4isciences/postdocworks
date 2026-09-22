@@ -64,10 +64,8 @@ export async function POST(request: Request) {
     if (!termsAccepted) errors.push("You must agree to the Terms of Service and Privacy Policy to continue.");
     if (!emailPattern.test(email)) errors.push("Enter a valid email address.");
     if (phone && !phonePattern.test(phone)) errors.push("Enter a valid phone number.");
-    if (!orcid) errors.push("ORCID iD is required.");
-    else if (!orcidPattern.test(orcid)) errors.push("Enter a valid ORCID iD.");
-    if (!pmid) errors.push("PubMed ID is required.");
-    else if (!pmidPattern.test(pmid)) errors.push("Enter a valid PubMed ID.");
+    if (orcid && !orcidPattern.test(orcid)) errors.push("Enter a valid ORCID iD.");
+    if (pmid && !pmidPattern.test(pmid)) errors.push("Enter a valid PubMed ID.");
     if (!isValidUrl(dissertationLink)) errors.push("Enter a valid dissertation/thesis link.");
     if (!isValidUrl(abstractLink)) errors.push("Enter a valid abstract/poster link.");
     if (!isValidUrl(linkedin)) errors.push("Enter a valid LinkedIn link.");
@@ -78,15 +76,20 @@ export async function POST(request: Request) {
     if (endorserPhone && !phonePattern.test(endorserPhone)) errors.push("Enter a valid endorser phone number.");
     if (errors.length) return NextResponse.json({ error: errors[0] }, { status: 400 });
 
-    const [orcidResult, pmidResult] = await Promise.all([verifyOrcidLive(orcid), verifyPubmedLive(pmid)]);
-    if (orcidResult.status !== "valid") {
-      return NextResponse.json({ error: orcidResult.status === "not_found" ? "We could not find an ORCID record for that iD. Double-check it and try again." : "We could not verify that ORCID iD right now. Please try again." }, { status: 400 });
+    const [orcidResult, pmidResult] = await Promise.all([
+      orcid ? verifyOrcidLive(orcid) : Promise.resolve(null),
+      pmid ? verifyPubmedLive(pmid) : Promise.resolve(null),
+    ]);
+    if (orcidResult && orcidResult.status !== "valid") {
+      return NextResponse.json({ error: orcidResult.status === "not_found" ? "We could not find an ORCID record for that iD. Double-check it or clear the field and try again." : "We could not verify that ORCID iD right now. Please try again." }, { status: 400 });
     }
-    if (pmidResult.status !== "valid") {
-      return NextResponse.json({ error: pmidResult.status === "not_found" ? "We could not find a PubMed publication for that ID. Double-check it and try again." : "We could not verify that PubMed ID right now. Please try again." }, { status: 400 });
+    if (pmidResult && pmidResult.status !== "valid") {
+      return NextResponse.json({ error: pmidResult.status === "not_found" ? "We could not find a PubMed publication for that ID. Double-check it or clear the field and try again." : "We could not verify that PubMed ID right now. Please try again." }, { status: 400 });
     }
+    const orcidVerified = orcidResult?.status === "valid";
+    const pmidVerified = pmidResult?.status === "valid";
 
-    const score = computeScore({ fullName, email, publicationVerified: true, linkedin, scholar, researchgate, endorserName, endorserEmail, patents, trademarks });
+    const score = computeScore({ fullName, email, publicationVerified: orcidVerified && pmidVerified, linkedin, scholar, researchgate, endorserName, endorserEmail, patents, trademarks });
     if (score < 60) return NextResponse.json({ error: "Complete at least 60% of your credential sections before continuing." }, { status: 400 });
 
     const supabase = await createDoc2PostdocServerClient();
@@ -96,9 +99,9 @@ export async function POST(request: Request) {
       email,
       phone,
       orcid,
-      orcid_verified: true,
+      orcid_verified: orcidVerified,
       pmid,
-      pmid_verified: true,
+      pmid_verified: pmidVerified,
       dissertation_link: dissertationLink,
       abstract_link: abstractLink,
       linkedin,
@@ -127,9 +130,10 @@ export async function POST(request: Request) {
 
     const origin = new URL(request.url).origin;
     const redirectPath = doc2postdocRole ? "/verify-credential?kind=doc2postdoc" : "/verify-credential";
+    const next = encodeURIComponent(redirectPath);
     const { error: otpError } = await supabase.auth.signInWithOtp({
       email,
-      options: { emailRedirectTo: `${origin}${redirectPath}`, shouldCreateUser: true, data: { display_name: fullName } },
+      options: { emailRedirectTo: `${origin}/auth/confirm?next=${next}`, shouldCreateUser: true, data: { display_name: fullName } },
     });
     if (otpError) throw otpError;
 

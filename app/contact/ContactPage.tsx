@@ -74,7 +74,7 @@ export function ContactPage() {
     <main className="home-site contact-page">
       <header className="home-nav">
         <Link className="home-brand" href="/" aria-label="PostdocWorks home">
-          <Image src="/postdocworks.jpg" alt="PostdocWorks logo" width={190} height={54} priority />
+          <Image src="/postdocworks.svg" alt="PostdocWorks logo" width={190} height={54} priority />
           <span className="home-brand-copy">
             <strong>PostdocWorks<sup className="brand-sm-mark">SM</sup></strong>
             <small>You say it — eyewee carries it, guides it, and cracks the toughest problems</small>
@@ -202,7 +202,7 @@ export function ContactPage() {
 
       <footer className="home-footer">
         <Link className="footer-brand" href="/" aria-label="PostdocWorks home">
-          <Image src="/postdocworks.jpg" alt="PostdocWorks logo" width={190} height={54} />
+          <Image src="/postdocworks.svg" alt="PostdocWorks logo" width={190} height={54} />
           <span className="home-brand-copy">
             <strong>PostdocWorks<sup className="brand-sm-mark">SM</sup></strong>
             <small>You say it — eyewee carries it, guides it, and cracks the toughest problems</small>

@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { FormEvent, useState } from "react";
-import { ArrowRight, CheckCircle2 } from "lucide-react";
+import { ArrowRight, CheckCircle2, LockOpen } from "lucide-react";
 
 type Status = "idle" | "submitting" | "success" | "error";
 
@@ -10,14 +10,15 @@ export function VerifyCredentialClient({ email, kind = "credential" }: { email: 
   if (kind === "doc2postdoc") {
     return (
       <div className="verify-body">
-        <span className="verify-check">
-          <CheckCircle2 size={22} />
+        <span className="verify-lock">
+          <LockOpen size={24} />
         </span>
+        <span className="verify-kicker">Email verified</span>
         <h1>You&apos;re verified.</h1>
         <p className="verify-email">{email}</p>
-        <p>Your account is confirmed and you&apos;re signed in. Continue to your dashboard, then finish your Doc2Postdoc match profile whenever you&apos;re ready.</p>
+        <p>Your account is confirmed and unlocked. You can log in now and pick up your Doc2Postdoc match profile whenever you&apos;re ready.</p>
         <Link className="verify-submit" href="/dashboard">
-          Continue to your dashboard <ArrowRight size={16} />
+          Log in to your dashboard <ArrowRight size={16} />
         </Link>
       </div>
     );

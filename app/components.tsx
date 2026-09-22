@@ -31,7 +31,7 @@ export function HomePage() {
   return (
     <main className="home-site">
       <header className="home-nav">
-        <a className="home-brand" href="#top" aria-label="PostdocWorks home"><Image src="/postdocworks.jpg" alt="PostdocWorks logo" width={190} height={54} priority /><span className="home-brand-copy"><strong>PostdocWorks<sup className="brand-sm-mark">SM</sup></strong><small>You say it — eyewee carries it, guides it, and cracks the toughest problems</small></span></a>
+        <a className="home-brand" href="#top" aria-label="PostdocWorks home"><Image src="/postdocworks.svg" alt="PostdocWorks logo" width={190} height={54} priority /><span className="home-brand-copy"><strong>PostdocWorks<sup className="brand-sm-mark">SM</sup></strong><small>You say it — eyewee carries it, guides it, and cracks the toughest problems</small></span></a>
         <nav className="home-nav-links" aria-label="Main navigation">
           <a href="#platform">The platform</a><a href="/doc2postdoc">Doc2Postdoc</a><a href="https://eyewee.vercel.app/" target="_blank" rel="noreferrer">eyewee</a><a href="/careers">Careers</a><a href="/contact">Contact</a>
           {signedIn ? (
@@ -66,7 +66,7 @@ export function HomePage() {
       </section>
       <section className="register-band" id="register"><div><p className="section-label">The first step is yours</p><h2>Make your next move legible.</h2></div><button className="register-round-button register-attention" type="button" onClick={() => setFormOpen(true)}>Register now <ArrowRight size={19} /></button></section>
       <WaitlistBand />
-      <footer className="home-footer"><a className="footer-brand" href="#top" aria-label="PostdocWorks home"><Image src="/postdocworks.jpg" alt="PostdocWorks logo" width={190} height={54} /><span className="home-brand-copy"><strong>PostdocWorks<sup className="brand-sm-mark">SM</sup></strong><small>You say it — eyewee carries it, guides it, and cracks the toughest problems</small></span></a><span className="footer-powered">Powered by i4iSciences<sup>TM</sup></span><nav className="footer-legal" aria-label="Legal"><a href="/terms">Terms of Service</a><a href="/privacy">Privacy Policy</a></nav><a className="footer-contact" href="mailto:hello@postdocworks.io">hello@postdocworks.io</a></footer>
+      <footer className="home-footer"><a className="footer-brand" href="#top" aria-label="PostdocWorks home"><Image src="/postdocworks.svg" alt="PostdocWorks logo" width={190} height={54} /><span className="home-brand-copy"><strong>PostdocWorks<sup className="brand-sm-mark">SM</sup></strong><small>You say it — eyewee carries it, guides it, and cracks the toughest problems</small></span></a><span className="footer-powered">Powered by i4iSciences<sup>TM</sup></span><nav className="footer-legal" aria-label="Legal"><a href="/terms">Terms of Service</a><a href="/privacy">Privacy Policy</a></nav><a className="footer-contact" href="mailto:hello@postdocworks.io">hello@postdocworks.io</a></footer>
       {formOpen && <CredentialForm onClose={() => setFormOpen(false)} />}
     </main>
   );

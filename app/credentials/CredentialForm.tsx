@@ -142,6 +142,8 @@ export function CredentialForm({ onClose, doc2postdocRole }: { onClose: () => vo
 
   const orcidValid = Boolean(orcid) && orcidPattern.test(orcid) && orcidCheck.status === "valid";
   const pmidValid = Boolean(pmid) && pmidPattern.test(pmid) && pmidCheck.status === "valid";
+  const orcidOk = !orcid || orcidValid;
+  const pmidOk = !pmid || pmidValid;
   const hasDetails = applicantName.trim().length >= 2 && emailPattern.test(applicantEmail);
   const hasPublication = orcidValid && pmidValid;
   const hasLinks = [linkedin, scholar, researchgate].some((value) => value && isValidUrl(value));
@@ -149,12 +151,11 @@ export function CredentialForm({ onClose, doc2postdocRole }: { onClose: () => vo
   const hasIp = patents.some((row) => row.value.trim().length >= 5) || trademarks.some((row) => row.value.trim().length >= 5);
   const sectionsComplete = [hasDetails, hasPublication, hasLinks, hasEndorsement, hasIp].filter(Boolean).length;
   const percent = Math.round((sectionsComplete / 5) * 100);
-  const qualified = percent >= PASS_THRESHOLD && orcidValid && pmidValid;
+  const qualified = percent >= PASS_THRESHOLD && orcidOk && pmidOk;
   const ringOffset = RING_CIRCUMFERENCE * (1 - percent / 100);
   const missingSections = [
     !hasDetails && "Your Details",
-    !orcidValid && "ORCID iD (required, must verify)",
-    !pmidValid && "PubMed ID (required, must verify)",
+    !hasPublication && "Publications (add a verifiable ORCID iD and PubMed ID to count this section)",
     !hasLinks && "Professional links",
     !hasEndorsement && "Faculty Endorsement",
     !hasIp && "Patents & Trademarks",
@@ -235,14 +236,14 @@ export function CredentialForm({ onClose, doc2postdocRole }: { onClose: () => vo
   }
 
   const relationshipLabels: Record<Relationship, string> = { pi: "Primary PI", coauthor: "Co-author", committee: "Thesis Committee" };
-  const previewRows: { label: string; value: string; chip: "required" | "verified" | "reference" }[] = [];
+  const previewRows: { label: string; value: string; chip: "required" | "verified" | "unverified" | "reference" }[] = [];
   if (applicantName) previewRows.push({ label: "Full name", value: applicantName, chip: "required" });
   if (applicantEmail) previewRows.push({ label: "Email", value: applicantEmail, chip: "required" });
   if (applicantPhone) previewRows.push({ label: "Phone", value: applicantPhone, chip: "required" });
   if (endorserName) previewRows.push({ label: "Faculty endorser", value: `${endorserName} (${relationshipLabels[endorserRelationship]})`, chip: "verified" });
   if (endorserPhone) previewRows.push({ label: "Endorser phone", value: endorserPhone, chip: "reference" });
-  if (orcid) previewRows.push({ label: "ORCID iD", value: orcid, chip: "verified" });
-  if (pmid) previewRows.push({ label: "PubMed ID", value: pmid, chip: "verified" });
+  if (orcid) previewRows.push({ label: "ORCID iD", value: orcid, chip: orcidValid ? "verified" : "unverified" });
+  if (pmid) previewRows.push({ label: "PubMed ID", value: pmid, chip: pmidValid ? "verified" : "unverified" });
   if (dissertationLink) previewRows.push({ label: "Dissertation link", value: dissertationLink, chip: "reference" });
   if (abstractLink) previewRows.push({ label: "Abstract/poster link", value: abstractLink, chip: "reference" });
   patents.forEach((row) => { if (row.value.trim()) previewRows.push({ label: "Patent", value: row.value.trim(), chip: "verified" }); });
@@ -257,7 +258,7 @@ export function CredentialForm({ onClose, doc2postdocRole }: { onClose: () => vo
         <header className="cred-doc-header">
           <button className="cred-close" type="button" onClick={onClose} aria-label="Close registration form"><X size={19} /></button>
           <div className="cred-wordmark">
-            <Image className="cred-wordmark-logo" src="/postdocworks.jpg" alt="PostdocWorks logo" width={40} height={37} priority />
+            <Image className="cred-wordmark-logo" src="/postdocworks.svg" alt="PostdocWorks logo" width={40} height={37} priority />
             <div>
               <p className="cred-brand">Postdoc<span className="cred-brand-works">Works</span><sup className="cred-sm-mark">SM</sup></p>
               <p className="cred-doc-title" id="cred-title">Verified Credentials</p>
@@ -311,21 +312,21 @@ export function CredentialForm({ onClose, doc2postdocRole }: { onClose: () => vo
             </div>
             <FieldWrap
               label="ORCID iD"
-              error={showError("orcid", !orcid || !orcidPattern.test(orcid) || (orcidCheck.status !== "checking" && orcidCheck.status !== "valid" && orcidCheck.status !== "idle"))}
-              errorText={!orcid ? "ORCID iD is required." : !orcidPattern.test(orcid) ? "Enter a valid ORCID iD, e.g. 0000-0002-1825-0097." : "This ORCID iD could not be verified — double-check it and try again."}
+              error={showError("orcid", Boolean(orcid) && (!orcidPattern.test(orcid) || (orcidCheck.status !== "checking" && orcidCheck.status !== "valid" && orcidCheck.status !== "idle")))}
+              errorText={!orcidPattern.test(orcid) ? "Enter a valid ORCID iD, e.g. 0000-0002-1825-0097." : "This ORCID iD could not be verified — double-check it and try again."}
             >
-              <input type="text" required value={orcid} onChange={(e) => setOrcid(e.target.value)} onBlur={() => { touch("orcid"); void checkOrcid(orcid); }} placeholder="0000-0000-0000-0000" />
+              <input type="text" value={orcid} onChange={(e) => setOrcid(e.target.value)} onBlur={() => { touch("orcid"); void checkOrcid(orcid); }} placeholder="0000-0000-0000-0000" />
               <CheckHint check={orcidCheck} validLabel={(c) => `Verified${c.name ? ` — ${c.name}` : ""}`} />
-              <p className="cred-hint">Required — checked live against the ORCID Public API. Your ORCID record must be found for this field to pass.</p>
+              <p className="cred-hint">If you have one, it's checked live against the ORCID Public API — it must be found there to count as verified.</p>
             </FieldWrap>
             <FieldWrap
               label="PubMed ID (PMID) of one publication"
-              error={showError("pmid", !pmid || !pmidPattern.test(pmid) || (pmidCheck.status !== "checking" && pmidCheck.status !== "valid" && pmidCheck.status !== "idle"))}
-              errorText={!pmid ? "PubMed ID is required." : !pmidPattern.test(pmid) ? "Enter a valid numeric PubMed ID." : "This PubMed ID could not be verified — double-check it and try again."}
+              error={showError("pmid", Boolean(pmid) && (!pmidPattern.test(pmid) || (pmidCheck.status !== "checking" && pmidCheck.status !== "valid" && pmidCheck.status !== "idle")))}
+              errorText={!pmidPattern.test(pmid) ? "Enter a valid numeric PubMed ID." : "This PubMed ID could not be verified — double-check it and try again."}
             >
-              <input type="text" required value={pmid} onChange={(e) => setPmid(e.target.value)} onBlur={() => { touch("pmid"); void checkPmid(pmid); }} placeholder="e.g. 34567890" />
+              <input type="text" value={pmid} onChange={(e) => setPmid(e.target.value)} onBlur={() => { touch("pmid"); void checkPmid(pmid); }} placeholder="e.g. 34567890" />
               <CheckHint check={pmidCheck} validLabel={(c) => `Verified${c.title ? ` — ${c.title.slice(0, 60)}${c.title.length > 60 ? "…" : ""}` : ""}`} />
-              <p className="cred-hint">Required — looked up live via PubMed E-utilities. The publication must be found for this field to pass.</p>
+              <p className="cred-hint">If you have one, it's looked up live via PubMed E-utilities — the publication must be found there to count as verified.</p>
             </FieldWrap>
             <FieldWrap label="Dissertation / thesis repository link" optional error={showError("dissertationLink", Boolean(dissertationLink) && !isValidUrl(dissertationLink))} errorText="Enter a valid link." hint="Self-reported and displayed on your profile, not checked against an external registry.">
               <input type="url" value={dissertationLink} onChange={(e) => setDissertationLink(e.target.value)} onBlur={() => touch("dissertationLink")} placeholder="https://repository.university.edu/handle/..." />
@@ -408,7 +409,7 @@ export function CredentialForm({ onClose, doc2postdocRole }: { onClose: () => vo
               <div className="cred-preview-row" key={`${row.label}-${index}`}>
                 <span className="cred-preview-label">{row.label}</span>
                 <span className="cred-preview-value">{row.value}</span>
-                <span className={`cred-chip cred-chip-${row.chip}`}>{row.chip === "required" ? "Required" : row.chip === "verified" ? "Verified" : "Reference only"}</span>
+                <span className={`cred-chip cred-chip-${row.chip}`}>{row.chip === "required" ? "Required" : row.chip === "verified" ? "Verified" : row.chip === "unverified" ? "Not verified" : "Reference only"}</span>
               </div>
             ))}
           </div>
@@ -443,6 +444,15 @@ export function CredentialForm({ onClose, doc2postdocRole }: { onClose: () => vo
             <p className="cred-gate-hint">
               You&apos;ve completed {percent}% — at least 60% (3 of 5 sections) is required. Still needed: {missingSections.join(", ")}.
               {(hasShortPatent || hasShortTrademark) && " A patent or trademark number you entered looks incomplete, so it isn't counted yet."}
+            </p>
+          )}
+          {previewOpen && (!orcidOk || !pmidOk) && (
+            <p className="cred-gate-hint">
+              {!orcidOk && !pmidOk
+                ? "The ORCID iD and PubMed ID you entered couldn't be verified — fix them or clear the fields to continue."
+                : !orcidOk
+                ? "The ORCID iD you entered couldn't be verified — fix it or clear the field to continue."
+                : "The PubMed ID you entered couldn't be verified — fix it or clear the field to continue."}
             </p>
           )}
           {submitStatus === "error" && <p className="cred-error">{submitError}</p>}
@@ -484,7 +494,8 @@ export function CredentialForm({ onClose, doc2postdocRole }: { onClose: () => vo
 
         <footer className="cred-legend">
           <div className="cred-legend-item"><span className="cred-chip cred-chip-required">Required</span> your own identity and contact info</div>
-          <div className="cred-legend-item"><span className="cred-chip cred-chip-verified">Verified</span> your unique ID is required for confirming your identity</div>
+          <div className="cred-legend-item"><span className="cred-chip cred-chip-verified">Verified</span> optional, but checked live against the source when provided</div>
+          <div className="cred-legend-item"><span className="cred-chip cred-chip-unverified">Not verified</span> a value was entered but couldn&apos;t be confirmed against the source</div>
           <div className="cred-legend-item"><span className="cred-chip cred-chip-reference">Reference only</span> self-reported, displayed but not checked</div>
           <p className="cred-legend-note">Patent and trademark numbers cover US filings only and are reviewed by our team; live USPTO verification activates once our integration key is configured.</p>
         </footer>

@@ -30,7 +30,8 @@ export async function POST(request: Request) {
     if (!email) return NextResponse.json({ error: "Enter a valid email address." }, { status: 400 });
     const supabase = await createDoc2PostdocServerClient();
     const origin = new URL(request.url).origin;
-    const { error } = await supabase.auth.signInWithOtp({ email, options: { emailRedirectTo: `${origin}/verify-credential`, shouldCreateUser: true, data: { display_name: displayName } } });
+    const next = encodeURIComponent("/verify-credential?kind=doc2postdoc");
+    const { error } = await supabase.auth.signInWithOtp({ email, options: { emailRedirectTo: `${origin}/auth/confirm?next=${next}`, shouldCreateUser: true, data: { display_name: displayName } } });
     if (error) return NextResponse.json({ error: error.message }, { status: 400 });
     return NextResponse.json({ success: true });
   }
