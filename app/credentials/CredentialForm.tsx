@@ -65,6 +65,9 @@ export function CredentialForm({ onClose, doc2postdocRole }: { onClose: () => vo
   const [resending, setResending] = useState(false);
   const [resendMessage, setResendMessage] = useState("");
   const [authState, setAuthState] = useState<AuthState>({ checking: false, authenticated: false, email: "" });
+  const [otpCode, setOtpCode] = useState("");
+  const [otpStatus, setOtpStatus] = useState<SubmitStatus>("idle");
+  const [otpError, setOtpError] = useState("");
 
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -210,6 +213,26 @@ export function CredentialForm({ onClose, doc2postdocRole }: { onClose: () => vo
       setResendMessage(error instanceof Error ? error.message : "We could not resend the email.");
     } finally {
       setResending(false);
+    }
+  }
+
+  async function submitOtpCode(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setOtpStatus("submitting");
+    setOtpError("");
+    try {
+      const response = await fetch("/api/auth/verify-code", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: applicantEmail, token: otpCode, kind: doc2postdocRole ? "doc2postdoc" : undefined }),
+      });
+      const result = (await response.json()) as { error?: string };
+      if (!response.ok) throw new Error(result.error || "That code is invalid or has expired.");
+      setOtpStatus("sent");
+      setAuthState({ checking: false, authenticated: true, email: applicantEmail });
+    } catch (error) {
+      setOtpStatus("error");
+      setOtpError(error instanceof Error ? error.message : "That code is invalid or has expired.");
     }
   }
 
@@ -464,6 +487,22 @@ export function CredentialForm({ onClose, doc2postdocRole }: { onClose: () => vo
                 {resending ? "Resending..." : "Resend verification email"}
               </button>
               {resendMessage && <p className="cred-hint">{resendMessage}</p>}
+              <form className="cred-otp-form" onSubmit={submitOtpCode}>
+                <FieldWrap label="Link not working? Enter the code from the email instead">
+                  <input
+                    type="text"
+                    inputMode="numeric"
+                    value={otpCode}
+                    onChange={(e) => setOtpCode(e.target.value.replace(/\D/g, ""))}
+                    placeholder="e.g. 123456"
+                    maxLength={8}
+                  />
+                </FieldWrap>
+                {otpStatus === "error" && <p className="cred-error">{otpError}</p>}
+                <button type="submit" className="cred-resend-btn" disabled={otpStatus === "submitting" || otpCode.length < 6}>
+                  {otpStatus === "submitting" ? "Verifying..." : "Verify code"}
+                </button>
+              </form>
               <p className="cred-waiting"><LoaderCircle size={14} className="cred-spin" /> Waiting for verification…</p>
             </div>
           )}

@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { createDoc2PostdocServerClient } from "../../../../lib/doc2postdoc/server";
+import { createDoc2PostdocServerClient, createDoc2PostdocEmailClient } from "../../../../lib/doc2postdoc/server";
 import { verifyOrcidLive, verifyPubmedLive } from "../../../../lib/credentials/liveVerify";
 
 const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -130,7 +130,8 @@ export async function POST(request: Request) {
 
     const origin = new URL(request.url).origin;
     const redirectPath = doc2postdocRole ? "/verify-credential?kind=doc2postdoc" : "/verify-credential";
-    const { error: otpError } = await supabase.auth.signInWithOtp({
+    const emailClient = createDoc2PostdocEmailClient();
+    const { error: otpError } = await emailClient.auth.signInWithOtp({
       email,
       options: { emailRedirectTo: `${origin}${redirectPath}`, shouldCreateUser: true, data: { display_name: fullName } },
     });

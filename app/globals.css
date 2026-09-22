@@ -264,6 +264,9 @@ button { cursor: pointer; }
 .cred-activation { margin: 0 32px 28px; }
 .cred-activation-title { margin: 0 0 6px; color: var(--cred-navy); font-family: var(--font-lora), Lora, serif; font-size: 16px; font-weight: 600; }
 .cred-email-sent-box { margin-top: 14px; border-radius: 6px; background: var(--cred-paper); padding: 14px 16px; }
+.cred-otp-form { margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--cred-border); }
+.cred-otp-form .cred-field { margin-bottom: 10px; }
+.cred-otp-form input { max-width: 160px; letter-spacing: .12em; }
 .cred-waiting { display: flex; align-items: center; gap: 7px; margin: 10px 0 0; color: var(--cred-ink-muted); font-size: 12px; }
 .cred-spin { animation: cred-spin 1s linear infinite; }
 @keyframes cred-spin { to { transform: rotate(360deg); } }
