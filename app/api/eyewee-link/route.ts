@@ -21,7 +21,15 @@ export async function GET(request: Request) {
     return NextResponse.redirect(new URL("/doc2postdoc", request.url));
   }
 
-  const token = mintLinkToken(user.id);
+  let token: string;
+  try {
+    token = mintLinkToken(user.id);
+  } catch {
+    // Most likely EYEWEE_POSTDOCWORKS_LINK_SECRET missing/misnamed in this app's env -- surface
+    // that clearly instead of crashing with a bare 500.
+    return NextResponse.json({ error: "EYEWEE_POSTDOCWORKS_LINK_SECRET is not configured on postdocworks." }, { status: 500 });
+  }
+
   const callbackUrl = new URL("/api/postdocworks/callback", eyeweeAppUrl);
   callbackUrl.searchParams.set("token", token);
   return NextResponse.redirect(callbackUrl);
